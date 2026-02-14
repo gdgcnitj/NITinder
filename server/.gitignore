@@ -1,0 +1,7 @@
+# environment variables
+.env
+# database file
+*.db
+# node package files
+node_modules/
+package-lock.json
