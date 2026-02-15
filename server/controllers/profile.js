@@ -16,15 +16,49 @@ const profileFields = [
   "profile_image",
 ];
 
+// GET: all profiles
 router.get("/", (req, res) => {
   const { user_id: userId } = req.query;
-  const query = userId
-    ? db.prepare(`SELECT * FROM profiles WHERE user_id = @user_id`)
-    : db.prepare(`SELECT * FROM profiles`);
-  const profiles = query.all({ user_id: userId });
+  let query;
+  let params = {};
+  
+  if (userId) {
+    query = db.prepare(`SELECT * FROM profiles WHERE user_id = @user_id`);
+    params.user_id = userId;
+  } else {
+    // Return all profiles except the current user's
+    const currentUserId = req.session?.user_id;
+    if (currentUserId) {
+      query = db.prepare(`SELECT * FROM profiles WHERE user_id != @user_id`);
+      params.user_id = currentUserId;
+    } else {
+      query = db.prepare(`SELECT * FROM profiles`);
+    }
+  }
+  
+  const profiles = query.all(params);
   return res.json({ profiles });
 });
 
+// GET: current user's profile
+router.get("/me", (req, res) => {
+  const userId = req.session?.user_id;
+  if (!userId) {
+    return res.status(401).json({ detail: "missing session" });
+  }
+
+  const profile = db
+    .prepare(`SELECT * FROM profiles WHERE user_id = @user_id`)
+    .get({ user_id: userId });
+
+  if (!profile) {
+    return res.status(404).json({ detail: "profile not found" });
+  }
+
+  return res.json({ profile });
+});
+
+// GET: specific profile
 router.get("/:id", (req, res) => {
   const profile = db
     .prepare(`SELECT * FROM profiles WHERE id = @id`)
@@ -35,6 +69,7 @@ router.get("/:id", (req, res) => {
   return res.json({ profile });
 });
 
+// POST: create profile (with optional image upload)
 router.post("/", (req, res) => {
   const userId = req.session?.user_id;
   if (!userId) {
@@ -74,6 +109,7 @@ router.post("/", (req, res) => {
   return res.status(201).json({ profile: payload });
 });
 
+// PUT: update profile (with optional image upload)
 router.put("/:id", (req, res) => {
   const userId = req.session?.user_id;
   if (!userId) {
@@ -119,6 +155,7 @@ router.put("/:id", (req, res) => {
   return res.json({ profile: updated });
 });
 
+// DELETE: delete profile
 router.delete("/:id", (req, res) => {
   const userId = req.session?.user_id;
   if (!userId) {

@@ -24,9 +24,10 @@ router.post("/login", async (req, res) => {
 
     if (!(await verifyPasswordHash(user.password_hash, password)))
       return res.status(401).json({ detail: "invalid credentials" });
-    const { name } = db
+    const profile = db
       .prepare(`SELECT name FROM profiles WHERE user_id = @user_id`)
       .get({ user_id: user.id });
+    const name = profile?.name || user.email;
     return res
       .header({
         Authorization: `Bearer ${createAccessToken(user)}`,
