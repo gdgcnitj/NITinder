@@ -7,6 +7,13 @@ This document describes the HTTP API exposed by the backend server.
 - Authentication for protected routes uses a Bearer JWT in the `Authorization` header.
 
 ---
+## Database Setup
+In order to create database tables and seed random user accounts use:
+```zsh
+npm run db:seed
+```
+
+---
 
 ## Authentication & Sessions
 

@@ -20,6 +20,7 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.static("./static/"));
 app.use(authMiddleware);
 /* ======================================= */
 
