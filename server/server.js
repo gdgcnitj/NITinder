@@ -6,6 +6,9 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import { router as auth } from "./controllers/auth.js";
+import { router as profiles } from "./controllers/profile.js";
+import { router as swipes } from "./controllers/swipe.js";
+
 import { authMiddleware } from "./middleware.js";
 
 const PORT = parseInt(process.env.PORT ?? "3000");
@@ -20,11 +23,14 @@ app.use(
 );
 app.use(morgan("dev"));
 app.use(express.json());
+app.use(express.static("./static/"));
 app.use(authMiddleware);
 /* ======================================= */
 
 /* =============== ROUTERS =============== */
 app.use("/auth", auth);
+app.use("/profiles", profiles);
+app.use("/swipes", swipes);
 /* ======================================= */
 
 /* System health check */

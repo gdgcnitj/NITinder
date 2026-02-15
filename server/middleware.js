@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import jwt from "jsonwebtoken";
-import { db } from "./db.js";
+import { db } from "./db/index.js";
 
 const ALGORITHM = process.env.ALGORITHM ?? "HS256";
 const SECRET_KEY = process.env.SECRET_KEY ?? "SECRET_KEY";
@@ -77,13 +77,27 @@ export function authMiddleware(req, res, next) {
     const payload = jwt.verify(token, SECRET_KEY, {
       algorithms: [ALGORITHM],
     });
-    const { sessionCount, expired } = db
+    const session = db
       .prepare(
-        `SELECT COUNT(*) AS sessionCount, expired FROM sessions WHERE user_id = @user_id`,
+        `SELECT id, revoked_at, expires_at
+         FROM sessions
+         WHERE id = @session_id AND user_id = @user_id`,
       )
       .get(payload);
-    if (sessionCount === 0 && !!expired) {
+
+    if (!session) {
       throw new Error("Invalid session token");
+    }
+
+    if (session.revoked_at) {
+      throw new Error("Revoked session token");
+    }
+
+    if (session.expires_at) {
+      const expiresAtMs = Date.parse(session.expires_at);
+      if (Number.isFinite(expiresAtMs) && expiresAtMs <= Date.now()) {
+        throw new Error("Expired session token");
+      }
     }
     req.session = payload;
     return next();
