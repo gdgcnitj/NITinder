@@ -58,6 +58,30 @@ router.get("/me", (req, res) => {
   return res.json({ profile });
 });
 
+// GET: profile image
+router.get("/:id/image", (req, res) => {
+  const profile = db
+    .prepare(`SELECT profile_image FROM profiles WHERE id = @id`)
+    .get({ id: req.params.id });
+  if (!profile || !profile.profile_image) {
+    return res.status(404).json({ detail: "image not found" });
+  }
+
+  let imageBuffer;
+  if (Buffer.isBuffer(profile.profile_image)) {
+    imageBuffer = profile.profile_image;
+  } else if (typeof profile.profile_image === 'string') {
+    // Likely base64-encoded from the client
+    imageBuffer = Buffer.from(profile.profile_image, 'base64');
+  } else {
+    imageBuffer = Buffer.from(profile.profile_image);
+  }
+
+  res.set("Content-Type", "image/png");
+  res.set("Content-Length", imageBuffer.length);
+  return res.send(imageBuffer);
+});
+
 // GET: specific profile
 router.get("/:id", (req, res) => {
   const profile = db
