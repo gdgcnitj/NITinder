@@ -1,76 +1,8 @@
 import fs from "fs";
-import { db } from "./db.js";
-import { getPasswordHash } from "./utils.js";
+import { db } from "./index.js";
+import { getPasswordHash } from "../utils.js";
 import { v4 as uuid } from "uuid";
 
-function setupTables() {
-  db.exec(`CREATE TABLE IF NOT EXISTS users(
-  id            TEXT PRIMARY KEY,
-  email         TEXT NOT NULL UNIQUE,
-  password_hash TEXT NOT NULL,
-  created_at    TEXT,
-  deleted_at    TEXT
-)`);
-  db.exec(`
-CREATE TABLE IF NOT EXISTS sessions(
-  id            TEXT PRIMARY KEY,
-  user_id       TEXT NOT NULL,
-  session_token TEXT NOT NULL,
-  created_at    TEXT,
-  expires_at    TEXT,
-  revoked_at    TEXT,
-  FOREIGN KEY(user_id) REFERENCES users(id)
-)`);
-  db.exec(`CREATE TABLE IF NOT EXISTS profiles(
-  id            TEXT PRIMARY KEY,
-  user_id       TEXT NOT NULL,
-  name          TEXT,
-  age           INTEGER,
-  bio           TEXT,
-  gender        CHAR(1), -- 'M'(male) or 'F'(female)
-  looking_for   CHAR(1), -- 'M'(male), 'F'(female) or 'A'(any)
-  latitude      REAL,
-  longitude     REAL,
-  created_at    TEXT,
-  updated_at    TEXT,
-  profile_image TEXT,
-  FOREIGN KEY(user_id) REFERENCES users(id)
-)`);
-  db.exec(`CREATE TABLE IF NOT EXISTS swipes(
-  id         TEXT PRIMARY KEY,
-  swiper_id  TEXT NOT NULL,
-  swipee_id  TEXT NOT NULL,
-  direction  CHAR(1), -- 'L'(left) or 'R'(right)
-  created_at TEXT,
-  FOREIGN KEY(swiper_id) REFERENCES users(id),
-  FOREIGN KEY(swipee_id) REFERENCES users(id)
-  )`);
-  db.exec(`CREATE TABLE IF NOT EXISTS matches(
-  id TEXT PRIMARY KEY,
-  user1_id TEXT NOT NULL,
-  user2_id TEXT NOT NULL,
-  created_at TEXT,
-  FOREIGN KEY(user1_id) REFERENCES users(id),
-  FOREIGN KEY(user2_id) REFERENCES users(id)
-)`);
-  db.exec(`CREATE TABLE IF NOT EXISTS conversations(
-  id         TEXT PRIMARY KEY,
-  match_id   TEXT NOT NULL,
-  created_at TEXT,
-  FOREIGN KEY(match_id) REFERENCES matches(id)
-)`);
-  db.exec(`CREATE TABLE IF NOT EXISTS messages(
-  id              TEXT PRIMARY KEY,
-  conversation_id TEXT NOT NULL,
-  sender_id       TEXT NOT NULL,
-  content         TEXT,
-  created_at      TEXT,
-  deleted_at      TEXT,
-  FOREIGN KEY(conversation_id) REFERENCES conversations(id),
-  FOREIGN KEY(sender_id)       REFERENCES users(id)
-)`);
-  console.log("[LOG] tables created");
-}
 async function seedUsers() {
   try {
     const select = db.prepare(`SELECT COUNT(*) AS user_count FROM users`);
@@ -145,11 +77,11 @@ async function seedProfiles() {
       );
       const insert = db.prepare(
         `INSERT INTO profiles (
-        id, user_id, age, bio, gender,  looking_for, 
+        id, user_id, name, age, bio, gender,  looking_for, 
         latitude, longitude, profile_image, 
         created_at, updated_at
       ) VALUES (
-        @id, @user_id, @age, @bio, @gender, @looking_for,
+        @id, @user_id, @name, @age, @bio, @gender, @looking_for,
         @latitude, @longitude, @profile_image,
         @created_at, @updated_at
       )`,
@@ -183,7 +115,6 @@ async function seedProfiles() {
   }
 }
 async function main() {
-  setupTables();
   await seedUsers();
   await seedProfiles();
 }

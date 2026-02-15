@@ -2,8 +2,9 @@ import "dotenv/config";
 
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
+import { v4 as uuid } from "uuid";
 
-import { db } from "./db.js";
+import { db } from "./db/index.js";
 
 const ALGORITHM = process.env.ALGORITHM ?? "HS256";
 const SECRET_KEY = process.env.SECRET_KEY ?? "SECRET_KEY";
@@ -35,7 +36,7 @@ async function getPasswordHash(plainPassword) {
  */
 async function verifyPasswordHash(hashedPassword, plainPassword) {
   try {
-    const isVerified = argon2.verify(hashedPassword, plainPassword);
+    const isVerified = await argon2.verify(hashedPassword, plainPassword);
     return isVerified;
   } catch (error) {
     console.log(`Unexpected error while hashing: ${error}`);
@@ -50,16 +51,28 @@ async function verifyPasswordHash(hashedPassword, plainPassword) {
  * @returns {string} A promise that resolves to the JWT access token.
  */
 function createAccessToken(user) {
-  const session = db
-    .prepare(`INSERT INTO sessions (user_id) VALUES (@user_id) RETURNING id`)
-    .get({ user_id: user.id });
+  const sessionId = uuid();
+  const issuedAt = new Date();
+  const expiresAt = new Date(issuedAt.getTime() + 7 * 24 * 60 * 60 * 1000);
   const accessToken = jwt.sign(
-    { username: user.name, user_id: user.id, session_id: session.id },
+    { username: user.email, user_id: user.id, session_id: sessionId },
     SECRET_KEY,
     {
       algorithm: ALGORITHM,
     },
   );
+
+  db.prepare(
+    `INSERT INTO sessions (id, user_id, session_token, created_at, expires_at, revoked_at)
+     VALUES (@id, @user_id, @session_token, @created_at, @expires_at, NULL)`
+  ).run({
+    id: sessionId,
+    user_id: user.id,
+    session_token: accessToken,
+    created_at: issuedAt.toISOString(),
+    expires_at: expiresAt.toISOString(),
+  });
+
   return accessToken;
 }
 

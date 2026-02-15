@@ -7,9 +7,13 @@ This document describes the HTTP API exposed by the backend server.
 - Authentication for protected routes uses a Bearer JWT in the `Authorization` header.
 
 ---
+
 ## Database Setup
+
 In order to create database tables and seed random user accounts use:
+
 ```zsh
+npm run db:push
 npm run db:seed
 ```
 
@@ -18,11 +22,11 @@ npm run db:seed
 ## Authentication & Sessions
 
 - Public routes (no token required):
-	- `GET /`
-	- `POST /auth/register`
-	- `POST /auth/login`
+  - `GET /`
+  - `POST /auth/register`
+  - `POST /auth/login`
 - Protected routes (token required):
-	- `GET /auth/logout`
+  - `GET /auth/logout`
 
 ### JWT format
 
@@ -36,9 +40,9 @@ The token payload contains at least:
 
 ```json
 {
-	"username": "John Doe",
-	"user_id": 1,
-	"session_id": 42
+  "username": "John Doe",
+  "user_id": 1,
+  "session_id": 42
 }
 ```
 
@@ -81,9 +85,9 @@ Public – no token required.
 
 - `200 OK`
 
-	```json
-	{ "message": "Hello, World!" }
-	```
+  ```json
+  { "message": "Hello, World!" }
+  ```
 
 ---
 
@@ -100,42 +104,42 @@ Public – no token required.
 - Method: `POST`
 - Path: `/auth/register`
 - Headers:
-	- `Content-Type: application/json`
+  - `Content-Type: application/json`
 - Body:
 
-	```json
-	{
-		"email": "john@doe.com",
-		"password": "password123",
-		"firstName": "John",
-		"lastName": "Doe"
-	}
-	```
+  ```json
+  {
+    "email": "john@doe.com",
+    "password": "password123",
+    "firstName": "John",
+    "lastName": "Doe"
+  }
+  ```
 
-	- `email` (string, required) – user email, must be unique.
-	- `password` (string, required) – plain-text password.
-	- `firstName` (string, required).
-	- `lastName` (string, required).
+  - `email` (string, required) – user email, must be unique.
+  - `password` (string, required) – plain-text password.
+  - `firstName` (string, required).
+  - `lastName` (string, required).
 
 **Responses**
 
 - `200 OK`
 
-	```json
-	{ "message": "Registered user: John Doe" }
-	```
+  ```json
+  { "message": "Registered user: John Doe" }
+  ```
 
 - `409 Conflict` – user already exists (unique email constraint)
 
-	```json
-	{ "detail": "user already exists" }
-	```
+  ```json
+  { "detail": "user already exists" }
+  ```
 
 - `500 Internal Server Error` – unexpected database or server error
 
-	```json
-	{ "detail": "could not register user" }
-	```
+  ```json
+  { "detail": "could not register user" }
+  ```
 
 ---
 
@@ -152,46 +156,46 @@ Public – no token required.
 - Method: `POST`
 - Path: `/auth/login`
 - Headers:
-	- `Content-Type: application/json`
+  - `Content-Type: application/json`
 - Body:
 
-	```json
-	{
-		"email": "john@doe.com",
-		"password": "password123"
-	}
-	```
+  ```json
+  {
+    "email": "john@doe.com",
+    "password": "password123"
+  }
+  ```
 
-	- `email` (string, required).
-	- `password` (string, required).
+  - `email` (string, required).
+  - `password` (string, required).
 
 **Responses**
 
 - `200 OK` – login successful
 
-	Headers:
+  Headers:
 
-	```http
-	Authorization: Bearer <JWT>
-	```
+  ```http
+  Authorization: Bearer <JWT>
+  ```
 
-	Body:
+  Body:
 
-	```json
-	{ "message": "Welcome back John Doe!" }
-	```
+  ```json
+  { "message": "Welcome back John Doe!" }
+  ```
 
 - `401 Unauthorized` – invalid credentials
 
-	```json
-	{ "detail": "invalid credentials" }
-	```
+  ```json
+  { "detail": "invalid credentials" }
+  ```
 
 - `500 Internal Server Error` – unexpected server error
 
-	```json
-	{ "detail": "unexpected server error" }
-	```
+  ```json
+  { "detail": "unexpected server error" }
+  ```
 
 ---
 
@@ -208,29 +212,28 @@ Protected – requires a valid Bearer JWT whose `session_id` corresponds to a no
 - Method: `GET`
 - Path: `/auth/logout`
 - Headers:
-	- `Authorization: Bearer <JWT>`
+  - `Authorization: Bearer <JWT>`
 
 **Behavior**
 
 - Uses `req.session.session_id` (populated by the auth middleware) to:
-	- Set `expired = 1` on the corresponding row in the `sessions` table.
-	- Optionally query the updated session record.
+  - Set `expired = 1` on the corresponding row in the `sessions` table.
+  - Optionally query the updated session record.
 - Only sends a response if the update affected at least one row.
 
 **Responses**
 
 - `200 OK` – when a session was successfully marked as expired
 
-	```json
-	{ "message": "Goodbye!" }
-	```
+  ```json
+  { "message": "Goodbye!" }
+  ```
 
 - `401 Unauthorized` – when:
-	- The `Authorization` header is missing or malformed, or
-	- The token is invalid/expired, or
-	- The session is missing or already expired.
+  - The `Authorization` header is missing or malformed, or
+  - The token is invalid/expired, or
+  - The session is missing or already expired.
 
-	```json
-	{ "detail": "Invalid or expired token" }
-	```
-
+  ```json
+  { "detail": "Invalid or expired token" }
+  ```
