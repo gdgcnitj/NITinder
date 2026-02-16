@@ -114,8 +114,41 @@ async function seedProfiles() {
     throw error;
   }
 }
+
+async function seedMatches() {
+  try {
+    const select = db.prepare(`SELECT COUNT(*) AS match_count FROM matches`);
+
+    if (select.get()["match_count"] === 0) {
+      const selectUserId = db.prepare(
+        `SELECT id as user_id FROM users WHERE email = @email`,
+      );
+
+      const johnId = selectUserId.get({ email: "john@doe.com" })?.user_id;
+      const janeId = selectUserId.get({ email: "jane@doe.com" })?.user_id;
+
+      if (johnId && janeId) {
+        db.prepare(
+          `INSERT INTO matches (id, user1_id, user2_id, created_at)
+           VALUES (@id, @user1_id, @user2_id, @created_at)`,
+        ).run({
+          id: uuid(),
+          user1_id: johnId,
+          user2_id: janeId,
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
+
+    console.log("[LOG] `matches` table seeded");
+  } catch (error) {
+    console.error(`[ERROR] seeding matches: ${error}`);
+    throw error;
+  }
+}
 async function main() {
   await seedUsers();
   await seedProfiles();
+  await seedMatches();
 }
 await main();
