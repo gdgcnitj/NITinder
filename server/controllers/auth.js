@@ -51,19 +51,44 @@ router.post("/register", async (req, res) => {
     if (!email || !password || !firstName || !lastName)
       return res.status(400).json({ detail: "missing required fields" });
 
-    const query = db.prepare(`
-    INSERT INTO users(id, email, password_hash, created_at, deleted_at)
-    VALUES (@id, @email, @password_hash, @created_at, NULL)`);
-    query.run({
-      id: uuid(),
+    const userId = uuid();
+    const now = new Date().toISOString();
+
+    // Create the user
+    db.prepare(`
+      INSERT INTO users(id, email, password_hash, created_at, deleted_at)
+      VALUES (@id, @email, @password_hash, @created_at, NULL)`,
+    ).run({
+      id: userId,
       email,
       password_hash: await getPasswordHash(password),
-      created_at: new Date().toISOString(),
+      created_at: now,
     });
 
-    return res.json({
-      message: `Registered user: ${firstName} ${lastName}`.trim(),
+    // Create a profile for the user
+    const profileId = uuid();
+    const fullName = `${firstName} ${lastName}`.trim();
+    db.prepare(`
+      INSERT INTO profiles (id, user_id, name, age, bio, gender, looking_for,
+        latitude, longitude, profile_image, created_at, updated_at)
+      VALUES (@id, @user_id, @name, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, @created_at, @updated_at)`,
+    ).run({
+      id: profileId,
+      user_id: userId,
+      name: fullName,
+      created_at: now,
+      updated_at: now,
     });
+
+    const user = { id: userId, email };
+    return res
+      .header({
+        Authorization: `Bearer ${createAccessToken(user)}`,
+      })
+      .json({
+        message: `Registered user: ${fullName}`,
+      });
   } catch (error) {
     if (error instanceof SqliteError) {
       console.error(`[ERROR] (${error.code}) ${error.message}`);

@@ -10,7 +10,6 @@ function Profile({ onLogout }) {
     { key: 'looking_for', label: 'Looking For', type: 'text', required: false, placeholder: 'What are you looking for?' },
     { key: 'latitude', label: 'Latitude', type: 'number', required: false, placeholder: 'e.g., 40.7128' },
     { key: 'longitude', label: 'Longitude', type: 'number', required: false, placeholder: 'e.g., -74.0060' },
-    // profile_image field removed for blob upload
   ]
 
   const [isEditing, setIsEditing] = useState(false)
@@ -55,17 +54,18 @@ function Profile({ onLogout }) {
             latitude: profile.latitude || '',
             longitude: profile.longitude || '',
           })
-          // Try to fetch image blob if available
-          // if (profile.id) {
-          //   fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/${profile.id}`, {
-          //     headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-          //   })
-          //     .then(res => res.ok ? res.blob() : null)
-          //     .then(blob => {
-          //       if (blob) setProfileImageUrl(URL.createObjectURL(blob))
-          //       else setProfileImageUrl('')
-          //     })
-          // }
+          // Fetch profile image
+          if (profile.id) {
+            try {
+              const imgRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/${profile.id}/image`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+              })
+              if (imgRes.ok) {
+                const blob = await imgRes.blob()
+                setProfileImageUrl(URL.createObjectURL(blob))
+              }
+            } catch { /* no image */ }
+          }
         }
       } catch (err) {
         setError(err.message)
@@ -97,14 +97,24 @@ function Profile({ onLogout }) {
       const url = profileId
         ? `${import.meta.env.VITE_BACKEND_URL}/profiles/${profileId}`
         : `${import.meta.env.VITE_BACKEND_URL}/profiles`
-      // Save profile data (except image)
+
+      // Build body, including image as base64 if selected
+      const bodyData = { ...profileData }
+      if (profileImage) {
+        const arrayBuffer = await profileImage.arrayBuffer()
+        const bytes = new Uint8Array(arrayBuffer)
+        let binary = ''
+        bytes.forEach(b => binary += String.fromCharCode(b))
+        bodyData.profile_image = btoa(binary)
+      }
+
       const res = await fetch(url, {
         method,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(profileData),
+        body: JSON.stringify(bodyData),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.detail || 'Failed to save profile')
@@ -118,26 +128,17 @@ function Profile({ onLogout }) {
         latitude: data.profile.latitude || '',
         longitude: data.profile.longitude || '',
       })
-      // If image file selected, upload it
-      if (profileImage) {
-        const imgForm = new FormData()
-        imgForm.append('image', profileImage)
-        await fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/${data.profile.id}`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${token}` },
-          body: imgForm
-        })
-      }
-      // Refresh image preview
+      // Refresh image
       if (data.profile.id) {
-        fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/${data.profile.id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-          .then(res => res.ok ? res.blob() : null)
-          .then(blob => {
-            if (blob) setProfileImageUrl(URL.createObjectURL(blob))
-            else setProfileImageUrl('')
+        try {
+          const imgRes = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/${data.profile.id}/image`, {
+            headers: { 'Authorization': `Bearer ${token}` }
           })
+          if (imgRes.ok) {
+            const blob = await imgRes.blob()
+            setProfileImageUrl(URL.createObjectURL(blob))
+          }
+        } catch { /* ignore */ }
       }
       setIsEditing(false)
     } catch (err) {
@@ -151,7 +152,6 @@ function Profile({ onLogout }) {
     setIsEditing(false)
     setLoading(true)
     setError('')
-    // Re-fetch profile
     fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/me`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -170,7 +170,6 @@ function Profile({ onLogout }) {
             looking_for: profile.looking_for || '',
             latitude: profile.latitude || '',
             longitude: profile.longitude || '',
-            profile_image: profile.profile_image || '',
           })
         }
       })
@@ -178,76 +177,159 @@ function Profile({ onLogout }) {
       .finally(() => setLoading(false))
   }
 
+  // Compute profile completion
+  const getCompletion = () => {
+    const fields = ['name', 'age', 'gender', 'bio', 'looking_for']
+    const hasImage = !!profileImageUrl
+    const filled = fields.filter(f => profileData[f]).length + (hasImage ? 1 : 0)
+    return Math.round((filled / (fields.length + 1)) * 100)
+  }
+
+  const genderMap = {
+    'm': 'Male', 'f': 'Female', 'male': 'Male', 'female': 'Female',
+    'non-binary': 'Non-binary', 'prefer not to say': 'Prefer not to say',
+    'M': 'Male', 'F': 'Female',
+  }
+
+  const displayGender = (g) => genderMap[g] || (g ? g.charAt(0).toUpperCase() + g.slice(1) : '')
+
   if (loading) {
-    return <div className="profile-container"><div className="profile-card"><p>Loading...</p></div></div>
+    return (
+      <div className="profile-container">
+        <div className="profile-loading">
+          <div className="loading-spinner" />
+          <span className="loading-text">Loading profile...</span>
+        </div>
+      </div>
+    )
   }
+
   if (error) {
-    return <div className="profile-container"><div className="profile-card"><p className="error-message">{error}</p></div></div>
+    return (
+      <div className="profile-container">
+        <div className="profile-loading">
+          <p className="error-message">{error}</p>
+        </div>
+      </div>
+    )
   }
+
+  const completion = getCompletion()
 
   return (
     <div className="profile-container">
       {!isEditing ? (
-        // View Mode
+        /* ============ VIEW MODE ============ */
         <div className="profile-view">
-          <div className="profile-image-section">
-            {profileImageUrl ? (
-              <img src={profileImageUrl} alt={profileData.name} className="profile-main-image" />
+          {/* Hero / Avatar */}
+          <div className="profile-hero">
+            <div className="profile-avatar-ring">
+              <div className="profile-avatar-inner">
+                {profileImageUrl ? (
+                  <img src={profileImageUrl} alt={profileData.name} className="profile-main-image" />
+                ) : (
+                  <div className="profile-avatar-placeholder">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="profile-identity">
+              <h1 className="profile-name-display">
+                {profileData.name || 'Your Name'}
+                {profileData.age && <span className="age-badge">{profileData.age}</span>}
+              </h1>
+
+              <div className="profile-meta-row">
+                {profileData.gender && (
+                  <span className="profile-meta-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    {displayGender(profileData.gender)}
+                  </span>
+                )}
+                {(profileData.latitude && profileData.longitude) && (
+                  <span className="profile-meta-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {`${parseFloat(profileData.latitude).toFixed(1)}°, ${parseFloat(profileData.longitude).toFixed(1)}°`}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Completion */}
+          {completion < 100 && (
+            <div className="profile-completion">
+              <div className="completion-bar-track">
+                <div className="completion-bar-fill" style={{ width: `${completion}%` }} />
+              </div>
+              <span className="completion-label">{completion}% complete</span>
+            </div>
+          )}
+
+          {/* Info Cards */}
+          <div className="profile-cards">
+            {profileData.bio ? (
+              <div className="profile-info-card">
+                <div className="info-card-label">About</div>
+                <p className="info-card-value">{profileData.bio}</p>
+              </div>
             ) : (
-              <div className="profile-image-placeholder">No Image</div>
+              <div className="profile-info-card" onClick={() => setIsEditing(true)} style={{ cursor: 'pointer' }}>
+                <div className="info-card-label">About</div>
+                <p className="info-card-empty">Tap to add a bio ✍️</p>
+              </div>
+            )}
+
+            {profileData.looking_for ? (
+              <div className="profile-info-card">
+                <div className="info-card-label">Looking For</div>
+                <p className="info-card-value">{profileData.looking_for}</p>
+              </div>
+            ) : (
+              <div className="profile-info-card" onClick={() => setIsEditing(true)} style={{ cursor: 'pointer' }}>
+                <div className="info-card-label">Looking For</div>
+                <p className="info-card-empty">Tap to add preferences 💫</p>
+              </div>
             )}
           </div>
-          <div className="profile-info-section">
-            <div className="profile-header-info">
-              <h1 className="profile-name">
-                {profileData.name} <span className="profile-age">{profileData.age}</span>
-              </h1>
-              {profileData.gender && (
-                <p className="profile-gender">{profileData.gender.charAt(0).toUpperCase() + profileData.gender.slice(1)}</p>
-              )}
-            </div>
-            {(profileData.latitude || profileData.longitude) && (
-              <div className="profile-location">
-                <span className="location-icon">📍</span>
-                <span>{profileData.latitude && profileData.longitude ? `${parseFloat(profileData.latitude).toFixed(2)}, ${parseFloat(profileData.longitude).toFixed(2)}` : 'Location unknown'}</span>
-              </div>
-            )}
-            {profileData.bio && (
-              <div className="profile-bio">
-                <p>{profileData.bio}</p>
-              </div>
-            )}
-            {profileData.looking_for && (
-              <div className="profile-looking-for">
-                <label>Looking for:</label>
-                <p>{profileData.looking_for}</p>
-              </div>
-            )}
-            <div className="profile-actions">
-              <button 
-                className="profile-button edit-btn"
-                onClick={() => setIsEditing(true)}
-              >
-                Edit Profile
-              </button>
-              <button onClick={onLogout} className="profile-button logout-btn">
-                Logout
-              </button>
-            </div>
+
+          {/* Action Buttons */}
+          <div className="profile-actions-bar">
+            <button className="profile-action-btn edit-btn" onClick={() => setIsEditing(true)}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Edit Profile
+            </button>
+            <button className="profile-action-btn logout-btn" onClick={onLogout}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
+              Logout
+            </button>
           </div>
         </div>
       ) : (
-        // Edit Mode
+        /* ============ EDIT MODE ============ */
         <div className="profile-edit">
           <div className="profile-edit-header">
             <h1>Edit Profile</h1>
-            <button 
-              className="close-btn"
-              onClick={handleCancel}
-            >
-              ✕
-            </button>
+            <button className="close-btn" onClick={handleCancel}>✕</button>
           </div>
+
           <div className="profile-edit-scroll">
             <form className="profile-form">
               {profileFields.map((field) => (
@@ -297,36 +379,38 @@ function Profile({ onLogout }) {
                   )}
                 </div>
               ))}
+
+              {/* Image upload */}
               <div className="form-group">
-                <label htmlFor="profile_image">Profile Image (Upload)</label>
-                <input
-                  id="profile_image"
-                  type="file"
-                  accept="image/*"
-                  onChange={e => setProfileImage(e.target.files[0])}
-                  className="form-input"
-                />
+                <label>Profile Photo</label>
+                <div className="image-upload-area">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  <span>{profileImage ? profileImage.name : 'Click to upload a photo'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={e => setProfileImage(e.target.files[0])}
+                  />
+                </div>
               </div>
             </form>
+
             {profileImage && (
               <div className="profile-image-preview">
-                <img src={URL.createObjectURL(profileImage)} alt="Preview" style={{ maxWidth: 120, maxHeight: 120, borderRadius: 12 }} />
+                <img src={URL.createObjectURL(profileImage)} alt="Preview" />
               </div>
             )}
           </div>
+
           <div className="profile-edit-actions">
-            <button
-              type="button"
-              className="profile-button secondary"
-              onClick={handleCancel}
-            >
+            <button type="button" className="profile-action-btn secondary" onClick={handleCancel}>
               Cancel
             </button>
-            <button
-              type="button"
-              className="profile-button primary"
-              onClick={handleSaveProfile}
-            >
+            <button type="button" className="profile-action-btn primary" onClick={handleSaveProfile}>
               Save Changes
             </button>
           </div>

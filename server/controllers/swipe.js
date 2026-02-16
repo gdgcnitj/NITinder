@@ -61,10 +61,27 @@ router.post("/", (req, res) => {
     return res.status(400).json({ detail: "direction must be 'L' or 'R'" });
   }
 
+  // The client sends a profile ID, but swipee_id references users(id).
+  // Resolve the profile ID to a user ID if needed.
+  let resolvedSwipeeId = swipeeId;
+  const userExists = db
+    .prepare(`SELECT id FROM users WHERE id = @id`)
+    .get({ id: swipeeId });
+
+  if (!userExists) {
+    const profile = db
+      .prepare(`SELECT user_id FROM profiles WHERE id = @id`)
+      .get({ id: swipeeId });
+    if (!profile) {
+      return res.status(404).json({ detail: "swipee not found" });
+    }
+    resolvedSwipeeId = profile.user_id;
+  }
+
   const payload = {
     id: uuid(),
     swiper_id: userId,
-    swipee_id: swipeeId,
+    swipee_id: resolvedSwipeeId,
     direction,
     created_at: new Date().toISOString(),
   };
