@@ -16,6 +16,26 @@ const profileFields = [
   "profile_image",
 ];
 
+// GET: unswiped profiles for the current user's feed
+router.get("/feed", (req, res) => {
+  const userId = req.session?.user_id;
+  if (!userId) {
+    return res.status(401).json({ detail: "missing session" });
+  }
+
+  const profiles = db
+    .prepare(
+      `SELECT p.* FROM profiles p
+       WHERE p.user_id != @user_id
+         AND p.user_id NOT IN (
+           SELECT s.swipee_id FROM swipes s WHERE s.swiper_id = @user_id
+         )`,
+    )
+    .all({ user_id: userId });
+
+  return res.json({ profiles });
+});
+
 // GET: all profiles
 router.get("/", (req, res) => {
   const { user_id: userId } = req.query;
