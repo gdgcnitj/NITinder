@@ -30,17 +30,17 @@ function Home() {
     }
   }
 
-  const fetchProfiles = async (userId) => {
+  const fetchProfiles = async (userId = currentUserId) => {
     try {
       setLoading(true)
       const token = localStorage.getItem('token')
-      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/profiles/feed`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       })
 
-      if (!response.ok) throw new Error('Failed to fetch profiles')
+      if (!response.ok) throw new Error('Failed to fetch profiles feed')
       const data = await response.json()
       // Filter out own profile by user_id
       const filtered = (data.profiles || []).filter(p => p.user_id !== userId)
@@ -157,7 +157,7 @@ function Home() {
       <div className="home-container">
         <div className="error">
           <p>Error: {error}</p>
-          <button onClick={fetchProfiles}>Retry</button>
+          <button onClick={() => fetchProfiles()}>Retry</button>
         </div>
       </div>
     )
@@ -169,7 +169,7 @@ function Home() {
         <div className="no-profiles">
           <h2>No more profiles</h2>
           <p>Come back later for more matches!</p>
-          <button onClick={fetchProfiles}>Refresh</button>
+          <button onClick={() => fetchProfiles()}>Refresh</button>
         </div>
       </div>
     )
