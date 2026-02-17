@@ -8,6 +8,7 @@ import morgan from "morgan";
 import { router as auth } from "./controllers/auth.js";
 import { router as profiles } from "./controllers/profile.js";
 import { router as swipes } from "./controllers/swipe.js";
+import { router as matches } from "./controllers/match.js";
 import { router as dateSuggestions } from "./controllers/date-suggestions.js";
 
 import { authMiddleware } from "./middleware.js";
@@ -33,6 +34,7 @@ app.use(authMiddleware);
 app.use("/auth", auth);
 app.use("/profiles", profiles);
 app.use("/swipes", swipes);
+app.use("/matches", matches);
 app.use("/date-suggestions", dateSuggestions);
 /* ======================================= */
 
