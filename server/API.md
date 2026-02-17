@@ -682,7 +682,92 @@ curl -X DELETE http://localhost:3000/swipes/550e8400-e29b-41d4-a716-446655440010
 
 ### Match Routes (`/matches`)
 
-**Note:** Match endpoints are implemented but not currently registered in the server router. These endpoints are documented for future implementation.
+#### Get All Matches for Current User
+```
+GET /matches
+```
+
+**Authentication:** Required
+
+**Success Response (200):**
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440020",
+    "created_at": "2024-01-15T10:35:00Z",
+    "user1": {
+      "id": "550e8400-e29b-41d4-a716-446655440001",
+      "email": "john@example.com",
+      "name": "John Doe",
+      "age": 28,
+      "bio": "Coffee enthusiast",
+      "gender": "M"
+    },
+    "user2": {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "email": "jane@example.com",
+      "name": "Jane Doe",
+      "age": 26,
+      "bio": "Adventure seeker",
+      "gender": "F"
+    }
+  }
+]
+```
+
+**Error Responses:**
+- `401` - Unauthorized (missing/invalid token)
+- `500` - Server error
+
+---
+
+#### Create a Match
+```
+POST /matches
+```
+
+**Authentication:** Required
+
+**Request Body:**
+```json
+{
+  "user1_id": "550e8400-e29b-41d4-a716-446655440001",
+  "user2_id": "550e8400-e29b-41d4-a716-446655440002"
+}
+```
+
+**Success Response (201):**
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440020",
+  "created_at": "2024-01-15T10:35:00Z",
+  "user1": {
+    "id": "550e8400-e29b-41d4-a716-446655440001",
+    "email": "john@example.com",
+    "name": "John Doe",
+    "age": 28,
+    "bio": "Coffee enthusiast",
+    "gender": "M"
+  },
+  "user2": {
+    "id": "550e8400-e29b-41d4-a716-446655440002",
+    "email": "jane@example.com",
+    "name": "Jane Doe",
+    "age": 26,
+    "bio": "Adventure seeker",
+    "gender": "F"
+  }
+}
+```
+
+**Error Responses:**
+- `400` - Missing user1_id or user2_id / Cannot match with yourself
+- `401` - Unauthorized (missing/invalid token)
+- `404` - One or both users not found
+- `409` - Match already exists between these users
+- `500` - Server error
+
+---
 
 #### Get Match by ID
 ```
