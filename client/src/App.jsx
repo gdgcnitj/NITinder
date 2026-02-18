@@ -7,6 +7,7 @@ import Home from './Home'
 import Chat from './Chat'
 import Navbar from './Navbar'
 import './App.css'
+import Explore from './Explore'
 
 function App() {
   const [isLogin, setIsLogin] = useState(true)
@@ -17,6 +18,7 @@ function App() {
     // Check if user is already logged in
     const token = localStorage.getItem('token')
     if (token) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsAuthenticated(true)
     }
   }, [])
@@ -54,7 +56,7 @@ function App() {
       <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="app-main">
         {activeTab === 'home' && <Home />}
-        {activeTab === 'explore' && <div className="tab-content"><p>Explore coming soon</p></div>}
+        {activeTab === 'explore' && <Explore/>}
         {activeTab === 'chat' && <Chat />}
         {activeTab === 'profile' && <Profile onLogout={handleLogout} />}
       </div>

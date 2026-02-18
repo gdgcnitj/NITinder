@@ -25,7 +25,7 @@ function Home() {
       setCurrentUserId(data.profile.user_id)
       fetchProfiles(data.profile.user_id)
     } catch (err) {
-      setError('Could not load your profile')
+      setError(`Could not load your profile - ${err.message}`)
       setLoading(false)
     }
   }
