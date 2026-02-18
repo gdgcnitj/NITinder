@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
+import { useNavigate } from "react-router-dom";
 
 export default function Explore() {
   const [self, setSelf] = useState(null);
@@ -7,6 +8,7 @@ export default function Explore() {
   const [imageUrls, setImageUrls] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSelf();
@@ -181,7 +183,7 @@ export default function Explore() {
                 </div>
 
                 <div className="profile-actions">
-                  <button className="btn-view">
+                  <button className="btn-view" onClick={()=>{navigate(`/profiles/${profile.id}`)}}>
                     View Profile
                   </button>
                 </div>

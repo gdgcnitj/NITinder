@@ -1,24 +1,23 @@
-
 import { useState, useEffect } from 'react'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+
 import Login from './Login'
 import Register from './Register'
 import Profile from './Profile'
+import PublicProfile from './PublicProfile'
 import Home from './Home'
 import Chat from './Chat'
 import Navbar from './Navbar'
-import './App.css'
 import Explore from './Explore'
+import './App.css'
 
 function App() {
   const [isLogin, setIsLogin] = useState(true)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [activeTab, setActiveTab] = useState('home')
 
   useEffect(() => {
-    // Check if user is already logged in
     const token = localStorage.getItem('token')
     if (token) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsAuthenticated(true)
     }
   }, [])
@@ -36,10 +35,10 @@ function App() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userProfile');
-    setIsAuthenticated(false);
-    setIsLogin(true);
+    localStorage.removeItem('token')
+    localStorage.removeItem('userProfile')
+    setIsAuthenticated(false)
+    setIsLogin(true)
   }
 
   if (!isAuthenticated) {
@@ -50,17 +49,27 @@ function App() {
     )
   }
 
-  // Main app after authentication
   return (
-    <>
-      <Navbar activeTab={activeTab} onTabChange={setActiveTab} />
+    <BrowserRouter>
+      <Navbar />
+
       <div className="app-main">
-        {activeTab === 'home' && <Home />}
-        {activeTab === 'explore' && <Explore/>}
-        {activeTab === 'chat' && <Chat />}
-        {activeTab === 'profile' && <Profile onLogout={handleLogout} />}
+        <Routes>
+          <Route path="/" element={<Navigate to="/home" />} />
+
+          <Route path="/home" element={<Home />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/profile" element={<Profile onLogout={handleLogout} />} />
+
+          {/* Public profile route */}
+          <Route path="/profiles/:id" element={<PublicProfile />} />
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/home" />} />
+        </Routes>
       </div>
-    </>
+    </BrowserRouter>
   )
 }
 

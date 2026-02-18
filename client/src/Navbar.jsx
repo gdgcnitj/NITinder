@@ -1,11 +1,18 @@
+import { useNavigate, useLocation } from 'react-router-dom'
 import './Navbar.css'
 
-function Navbar({ activeTab, onTabChange }) {
+function Navbar() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const current = location.pathname
+
   return (
     <nav className="navbar">
+
       <button
-        className={`nav-item ${activeTab === 'home' ? 'active' : ''}`}
-        onClick={() => onTabChange('home')}
+        className={`nav-item ${current === '/home' ? 'active' : ''}`}
+        onClick={() => navigate('/home')}
         title="Home"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -15,8 +22,8 @@ function Navbar({ activeTab, onTabChange }) {
       </button>
 
       <button
-        className={`nav-item ${activeTab === 'explore' ? 'active' : ''}`}
-        onClick={() => onTabChange('explore')}
+        className={`nav-item ${current === '/explore' ? 'active' : ''}`}
+        onClick={() => navigate('/explore')}
         title="Explore"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -25,8 +32,8 @@ function Navbar({ activeTab, onTabChange }) {
       </button>
 
       <button
-        className={`nav-item ${activeTab === 'chat' ? 'active' : ''}`}
-        onClick={() => onTabChange('chat')}
+        className={`nav-item ${current === '/chat' ? 'active' : ''}`}
+        onClick={() => navigate('/chat')}
         title="Chat"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -35,8 +42,8 @@ function Navbar({ activeTab, onTabChange }) {
       </button>
 
       <button
-        className={`nav-item ${activeTab === 'profile' ? 'active' : ''}`}
-        onClick={() => onTabChange('profile')}
+        className={`nav-item ${current === '/profile' ? 'active' : ''}`}
+        onClick={() => navigate('/profile')}
         title="Profile"
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -44,6 +51,7 @@ function Navbar({ activeTab, onTabChange }) {
           <circle cx="12" cy="7" r="4" />
         </svg>
       </button>
+
     </nav>
   )
 }
