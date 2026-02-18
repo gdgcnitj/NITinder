@@ -10,6 +10,7 @@ import { router as profiles } from "./controllers/profile.js";
 import { router as swipes } from "./controllers/swipe.js";
 import { router as matches } from "./controllers/match.js";
 import { router as dateSuggestions } from "./controllers/date-suggestions.js";
+import { router as conversations } from "./controllers/conversation.js";
 
 import { authMiddleware } from "./middleware.js";
 
@@ -35,6 +36,7 @@ app.use("/auth", auth);
 app.use("/profiles", profiles);
 app.use("/swipes", swipes);
 app.use("/matches", matches);
+app.use("/conversations", conversations)
 app.use("/date-suggestions", dateSuggestions);
 /* ======================================= */
 

@@ -2,6 +2,8 @@ import { Router } from "express";
 import { db } from "../db/index.js";
 import { v4 as uuid } from "uuid";
 
+import { router as messages} from "./message.js"
+
 export const router = Router({});
 
 // GET /conversations
@@ -120,6 +122,7 @@ router.get("/:conversationId", async (req, res) => {
 // POST /conversations
 // Create a new conversation for a match
 router.post("/", async (req, res) => {
+  console.log("reaching post conversations")
   try {
     const matchId = req.body.match_id?.trim();
     const userId = req.session.user_id;
@@ -227,3 +230,5 @@ router.delete("/:conversationId", async (req, res) => {
     return res.status(500).json({ detail: "could not delete conversation" });
   }
 });
+
+router.use('/', messages)
