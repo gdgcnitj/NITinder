@@ -4,12 +4,20 @@ import "./Chat.css";
 export default function Explore() {
   const [self, setSelf] = useState(null);
   const [profiles, setProfiles] = useState([]);
+  const [imageUrls, setImageUrls] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchSelf();
   }, []);
+
+  useEffect(() => {
+    if (profiles.length > 0) {
+      fetchImages();
+    }
+    // eslint-disable-next-line
+  }, [profiles]);
 
   const fetchSelf = async () => {
     try {
@@ -33,7 +41,6 @@ export default function Explore() {
       const data = await res.json();
       setSelf(data.profile);
 
-      // Fetch profiles after self is known
       fetchProfiles(data.profile.user_id);
     } catch (err) {
       setError(err.message);
@@ -57,8 +64,7 @@ export default function Explore() {
         }
       );
 
-      if (!response.ok)
-        throw new Error("Failed to fetch profiles");
+      if (!response.ok) throw new Error("Failed to fetch profiles");
 
       const data = await response.json();
 
@@ -73,6 +79,39 @@ export default function Explore() {
       console.error("Error fetching profiles:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchImages = async () => {
+    const token = localStorage.getItem("token");
+    const newUrls = {};
+
+    for (const profile of profiles) {
+      if (!imageUrls[profile.id]) {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/profiles/${profile.id}/image`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (res.ok) {
+            const blob = await res.blob();
+            newUrls[profile.id] = URL.createObjectURL(blob);
+          } else {
+            newUrls[profile.id] = "";
+          }
+        } catch {
+          newUrls[profile.id] = "";
+        }
+      }
+    }
+
+    if (Object.keys(newUrls).length > 0) {
+      setImageUrls((prev) => ({ ...prev, ...newUrls }));
     }
   };
 
@@ -92,11 +131,36 @@ export default function Explore() {
         <div className="matches-container">
           {profiles.map((profile) => (
             <div key={profile.id} className="match-card">
+              
+              {imageUrls[profile.id] ? (
+                <img
+                  src={imageUrls[profile.id]}
+                  alt={profile.name}
+                  style={{
+                    width: "100%",
+                    height: "250px",
+                    objectFit: "cover",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "250px",
+                    background: "#f0f0f0",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#999",
+                  }}
+                >
+                  No Image
+                </div>
+              )}
+
               <div className="match-profile">
                 <div className="profile-header">
-                  <h3 className="profile-name">
-                    {profile.name}
-                  </h3>
+                  <h3 className="profile-name">{profile.name}</h3>
                   <p className="profile-age">
                     {profile.age} years old
                   </p>
