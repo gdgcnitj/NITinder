@@ -9,10 +9,10 @@ export const router = Router({});
 router.get("/", async (req, res) => {
   try {
     const userId = req.session.user_id;
-
+    
     const matches = db
-      .prepare(
-        `SELECT m.*, 
+    .prepare(
+      `SELECT m.*, 
                 u1.email as user1_email, 
                 p1.name as user1_name, 
                 p1.age as user1_age,
@@ -23,16 +23,16 @@ router.get("/", async (req, res) => {
                 p2.age as user2_age,
                 p2.bio as user2_bio,
                 p2.gender as user2_gender
-         FROM matches m
-         JOIN users u1 ON m.user1_id = u1.id
-         JOIN profiles p1 ON u1.id = p1.user_id
-         JOIN users u2 ON m.user2_id = u2.id
-         JOIN profiles p2 ON u2.id = p2.user_id
-         WHERE m.user1_id = @userId OR m.user2_id = @userId
-         ORDER BY m.created_at DESC`,
-      )
+                FROM matches m
+                JOIN users u1 ON m.user1_id = u1.id
+                JOIN profiles p1 ON u1.id = p1.user_id
+                JOIN users u2 ON m.user2_id = u2.id
+                JOIN profiles p2 ON u2.id = p2.user_id
+                WHERE m.user1_id = @userId OR m.user2_id = @userId
+                ORDER BY m.created_at DESC`,
+              )
       .all({ userId });
-
+      
     return res.json(
       matches.map((match) => ({
         id: match.id,

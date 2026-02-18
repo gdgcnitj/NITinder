@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from 'react'
 import Login from './Login'
 import Register from './Register'
 import Profile from './Profile'
 import Home from './Home'
+import Chat from './Chat'
 import Navbar from './Navbar'
 import './App.css'
 
@@ -53,7 +55,7 @@ function App() {
       <div className="app-main">
         {activeTab === 'home' && <Home />}
         {activeTab === 'explore' && <div className="tab-content"><p>Explore coming soon</p></div>}
-        {activeTab === 'chat' && <div className="tab-content"><p>Chat coming soon</p></div>}
+        {activeTab === 'chat' && <Chat />}
         {activeTab === 'profile' && <Profile onLogout={handleLogout} />}
       </div>
     </>
