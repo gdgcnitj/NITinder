@@ -303,3 +303,159 @@
   cursor: not-allowed;
   opacity: 0.6;
 }
+
+/* Date Suggestions Styles */
+.btn-date-suggestions {
+  padding: 0.6rem 1.2rem;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-date-suggestions:hover:not(:disabled) {
+  background: #ff5252;
+  transform: scale(1.05);
+}
+
+.btn-date-suggestions:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.date-suggestions-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.date-suggestions-modal > div,
+.date-suggestions-modal .suggestions-list {
+  /* Handled by child styling */
+}
+
+.date-suggestions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff5252 100%);
+  color: white;
+}
+
+.date-suggestions-header h3 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0 0.5rem;
+  transition: all 0.2s;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.suggestions-list {
+  background: white;
+  border-radius: 12px;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.suggestion-card {
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s;
+}
+
+.suggestion-card:last-child {
+  border-bottom: none;
+}
+
+.suggestion-card:hover {
+  background: #fafafa;
+}
+
+.suggestion-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #ff6b6b;
+  padding: 1.2rem 1.5rem 0.8rem 1.5rem;
+  border-bottom: 2px solid #ffe0e0;
+}
+
+.suggestion-body {
+  padding: 1rem 1.5rem 1.2rem 1.5rem;
+}
+
+.suggestion-plan,
+.suggestion-fit {
+  margin: 0 0 0.8rem 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #555;
+}
+
+.suggestion-plan strong,
+.suggestion-fit strong {
+  color: #333;
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.9rem;
+}
+
+.suggestion-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.detail {
+  font-size: 0.9rem;
+  color: #666;
+  background: #f5f5f5;
+  padding: 0.5rem 0.8rem;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.no-suggestions {
+  padding: 2rem;
+  text-align: center;
+  color: #999;
+  font-style: italic;
+}
+
+.error-message {
+  color: #d32f2f;
+  background: #ffebee;
+  padding: 1rem;
+  border-radius: 6px;
+  margin: 1rem;
+}
