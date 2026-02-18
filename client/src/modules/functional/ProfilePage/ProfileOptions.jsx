@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./Profile.css";
 
-function ProfileOptions({ onLogout }) {
+export default function ProfileOptions({ onLogout }) {
   const profileFields = [
     { key: "name", label: "Full Name", type: "text", required: true },
     {
@@ -569,5 +569,3 @@ function ProfileOptions({ onLogout }) {
     </>
   );
 }
-
-export default ProfileOptions;
