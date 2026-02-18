@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './Auth.css'
+import PageLayout from './modules/layout/PageLayout'
 
 function Login({ onToggle, onLoginSuccess }) {
   const [email, setEmail] = useState('')
@@ -47,7 +48,7 @@ function Login({ onToggle, onLoginSuccess }) {
   }
 
   return (
-    <div className="auth-container">
+    <PageLayout>
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo-icon">
@@ -128,7 +129,7 @@ function Login({ onToggle, onLoginSuccess }) {
           </p>
         </div>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 

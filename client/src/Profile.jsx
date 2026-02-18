@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./Profile.css";
+import PageLayout from "./modules/layout/PageLayout";
 
 function Profile({ onLogout }) {
   const profileFields = [
@@ -292,7 +293,7 @@ function Profile({ onLogout }) {
   const completion = getCompletion();
 
   return (
-    <div className="profile-container">
+    <PageLayout>
       {!isEditing ? (
         /* ============ VIEW MODE ============ */
         <div className="profile-view">
@@ -566,7 +567,7 @@ function Profile({ onLogout }) {
           </div>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
 

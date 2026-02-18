@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import './Home.css'
+import PageLayout from './modules/layout/PageLayout'
 
 function Home() {
   const [profiles, setProfiles] = useState([])
@@ -181,7 +182,7 @@ function Home() {
   const interests = currentProfile.looking_for ? currentProfile.looking_for.split(',').map(i => i.trim()).slice(0, 5) : []
 
   return (
-    <div className="home-container">
+    <PageLayout>
       <div className="swipe-container">
         <div className="profile-card">
           {imageUrls[currentProfile.id] ? (
@@ -261,7 +262,7 @@ function Home() {
           </svg>
         </button>
       </div>
-    </div>
+    </PageLayout>
   )
 }
 
