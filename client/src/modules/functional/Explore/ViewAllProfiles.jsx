@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
-import { useNavigate } from "react-router-dom";
 
+// eslint-disable-next-line no-unused-vars
 export default function ViewAllProfiles({ProfileCard}) {
   const [self, setSelf] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [imageUrls, setImageUrls] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchSelf();

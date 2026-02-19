@@ -1,0 +1,324 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 70px);
+  background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+  padding: 20px;
+  padding-bottom: 100px;
+  gap: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+}
+
+.swipe-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 420px;
+  aspect-ratio: 9 / 16;
+}
+
+.profile-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.8) 100%);
+  pointer-events: none;
+}
+
+/* Interest tags at the top */
+.interests-tags {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  z-index: 2;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+}
+
+/* Card info at the bottom */
+.card-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 30px 20px 20px;
+  color: white;
+  z-index: 3;
+}
+
+.profile-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.profile-header h2 {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.profile-header .age {
+  font-size: 36px;
+  font-weight: 700;
+}
+
+.verified {
+  color: #1e90ff;
+  font-size: 18px;
+  font-weight: bold;
+  margin-left: auto;
+}
+
+.bio {
+  font-size: 14px;
+  color: #e0e0e0;
+  margin: 0;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+.gender {
+  font-size: 13px;
+  color: #999;
+  margin: 8px 0 0 0;
+  text-transform: capitalize;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #444;
+  background: transparent;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.action-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: scale(1.1);
+  border-color: currentColor;
+}
+
+.action-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Undo Button */
+.undo-btn {
+  color: #999;
+}
+
+.undo-btn:hover:not(:disabled) {
+  border-color: #999;
+  color: #ccc;
+}
+
+/* Pass Button */
+.pass-btn {
+  color: #d63031;
+}
+
+.pass-btn:hover:not(:disabled) {
+  border-color: #d63031;
+  box-shadow: 0 0 20px rgba(214, 48, 49, 0.3);
+}
+
+/* Superlike Button */
+.superlike-btn {
+  color: #1e90ff;
+}
+
+.superlike-btn:hover:not(:disabled) {
+  border-color: #1e90ff;
+  box-shadow: 0 0 20px rgba(30, 144, 255, 0.3);
+}
+
+/* Like Button */
+.like-btn {
+  color: #ff6b9d;
+}
+
+.like-btn:hover:not(:disabled) {
+  border-color: #ff6b9d;
+  box-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+}
+
+/* Boost Button */
+.boost-btn {
+  color: #ffa500;
+}
+
+.boost-btn:hover:not(:disabled) {
+  border-color: #ffa500;
+  box-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
+}
+
+/* Loading and Error States */
+.loading,
+.error,
+.no-profiles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.loading h2,
+.error h2,
+.no-profiles h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.loading p,
+.error p,
+.no-profiles p {
+  font-size: 16px;
+  color: #999;
+  margin: 0;
+}
+
+.error button,
+.no-profiles button {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e72 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.error button:hover,
+.no-profiles button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(255, 107, 107, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .swipe-container {
+    max-width: 100%;
+    height: calc(100vh - 150px);
+  }
+
+  .action-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .action-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .profile-header h2,
+  .profile-header .age {
+    font-size: 28px;
+  }
+
+  .card-info {
+    padding: 24px 16px 16px;
+  }
+
+  .interests-tags {
+    top: 12px;
+    left: 12px;
+    right: 12px;
+  }
+
+  .tag {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .action-buttons {
+    gap: 10px;
+    padding: 0 16px;
+  }
+
+  .action-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .profile-header h2,
+  .profile-header .age {
+    font-size: 24px;
+  }
+}
