@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import './Auth.css'
-import PageLayout from './modules/layout/PageLayout'
+import PageLayout from './children/modules/layout/PageLayout'
 
 function Login({ onToggle, onLoginSuccess }) {
   const [email, setEmail] = useState('')

@@ -1,6 +1,6 @@
 import AuthManager from "./AuthManager";
-import Login from "./children/Login";
-import Register from "./children/Register";
+import Login from "./Login";
+import Register from "./Register";
 import AppRouter from "./AppRouter";
 import "./App.css";
 

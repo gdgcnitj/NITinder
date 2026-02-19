@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Home from "./children/Home";
-import Chat from "./children/Chat";
-import Explore from "./children/Explore";
-import Profile from "./children/Profile";
+import Home from "./Home";
+import Chat from "./Chat";
+import Explore from "./Explore";
+import Profile from "./Profile";
 import PublicProfile from "./children/PublicProfile";
-import Navbar from "./children/Navbar";
+import Navbar from "./Navbar";
 
 /**
  * AppRouter - Contains all route definitions for the authenticated app.
