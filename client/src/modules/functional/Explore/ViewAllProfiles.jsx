@@ -149,7 +149,7 @@ export default function ViewAllProfiles({ ProfileCard }) {
               <div
                 style={{
                   width: "80%",
-                  color: "white",
+                  color: "#e0e0e0",
                   textWrap: "wrap",
                   wordBreak: "break-word",
                 }}

@@ -20,11 +20,12 @@ export default function ProfileCard({imageUrls, profile}) {
                   style={{
                     width: "100%",
                     height: "250px",
-                    background: "#f0f0f0",
+                    background: "#1a1a1a",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "#999",
+                    color: "#888",
+                    borderBottom: "1px solid #333",
                   }}
                 >
                   No Image

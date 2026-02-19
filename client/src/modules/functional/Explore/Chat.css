@@ -16,20 +16,23 @@
   text-align: center;
   padding: 2rem;
   font-size: 1.1rem;
+  color: #e0e0e0;
 }
 
 .error {
-  color: #d32f2f;
-  background: #ffebee;
+  color: #ff6b6b;
+  background: #2a1f1f;
   border-radius: 8px;
   padding: 1.5rem;
+  border: 1px solid #4a2a2a;
 }
 
 .no-matches {
-  color: #666;
-  background: #f5f5f5;
+  color: #b0b0b0;
+  background: #1a1a1a;
   border-radius: 8px;
   padding: 1.5rem;
+  border: 1px solid #2a2a2a;
 }
 
 .matches-container {
@@ -39,16 +42,18 @@
 }
 
 .match-card {
-  background: white;
+  background: #1e1e1e;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
   overflow: hidden;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .match-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+  border-color: #444;
 }
 
 .match-profile {
@@ -62,19 +67,19 @@
 .profile-name {
   font-size: 1.5rem;
   margin: 0 0 0.5rem 0;
-  color: #333;
+  color: #ffffff;
 }
 
 .profile-age {
   font-size: 0.95rem;
-  color: #666;
+  color: #b0b0b0;
   margin: 0;
 }
 
 .profile-details {
   margin-bottom: 1.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #333;
 }
 
 .detail-item {
@@ -86,11 +91,11 @@
 
 .detail-item .label {
   font-weight: 600;
-  color: #555;
+  color: #d0d0d0;
 }
 
 .detail-item .value {
-  color: #888;
+  color: #b0b0b0;
   text-align: right;
   word-break: break-word;
   max-width: 60%;
@@ -102,14 +107,14 @@
 
 .profile-bio .label {
   font-weight: 600;
-  color: #555;
+  color: #d0d0d0;
   margin-bottom: 0.5rem;
   display: block;
   font-size: 0.95rem;
 }
 
 .bio-text {
-  color: #666;
+  color: #b0b0b0;
   line-height: 1.5;
   margin: 0;
   font-size: 0.95rem;
@@ -143,14 +148,14 @@
 }
 
 .btn-view {
-  background: #f5f5f5;
-  color: #333;
-  border: 1px solid #ddd;
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #444;
 }
 
 .btn-view:hover {
-  background: #eeeeee;
-  border-color: #bbb;
+  background: #333;
+  border-color: #555;
 }
 /* Chat View Styles */
 .chat-view {
