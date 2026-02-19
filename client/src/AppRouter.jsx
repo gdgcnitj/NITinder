@@ -5,7 +5,6 @@ import Chat from "./Chat";
 import Explore from "./Explore";
 import Profile from "./Profile";
 import PublicProfile from "./children/PublicProfile";
-import Navbar from "./Navbar";
 
 /**
  * AppRouter - Contains all route definitions for the authenticated app.
@@ -43,7 +42,6 @@ function AppRouter({ onLogout }) {
         </div>
 
         {/* // INSERT NAVBAR HERE */}
-        <Navbar />
       </div>
     </BrowserRouter>
   );

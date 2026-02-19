@@ -1,10 +1,6 @@
-import ProfileOptions from "./children/modules/functional/ProfilePage/ProfileOptions";
-import PageLayout from "./children/modules/layout/PageLayout";
-
 export default function Profile({onLogout}) {
   return (
-    <PageLayout>
-      <ProfileOptions onLogout={onLogout}/>
-    </PageLayout>
+    // Delete the line below and import PageLayout and ProfileOptions components to build the profile page
+    <div>Build a Profile Page Component to handle the profile functionality.</div>
   )
 }
