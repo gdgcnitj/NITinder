@@ -42,6 +42,7 @@ function AppRouter({ onLogout }) {
           </Routes>
         </div>
 
+        {/* // INSERT NAVBAR HERE */}
         <Navbar />
       </div>
     </BrowserRouter>
