@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import "./Profile.css"
+import "./modules/functional/ProfilePage/Profile.css"
 
 function PublicProfile() {
   const { id } = useParams()
