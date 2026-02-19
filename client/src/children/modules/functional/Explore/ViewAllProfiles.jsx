@@ -1,8 +1,31 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
 
+const WALKTHROUGH_MESSAGE = (
+  <div className="walkthrough-message" style={{
+    padding: "2rem",
+    textAlign: "center",
+    color: "#e0e0e0",
+    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+    borderRadius: "12px",
+    margin: "1rem",
+    border: "1px solid #333",
+  }}>
+    <h3 style={{ marginBottom: "0.5rem" }}>📚 Walkthrough Step</h3>
+    <p style={{ margin: 0, fontSize: "0.95rem" }}>
+      Import <strong>ProfileCard</strong> in Explore.jsx, then pass it to ViewAllProfiles to see profiles.
+    </p>
+    <code style={{ display: "block", marginTop: "1rem", fontSize: "0.85rem", opacity: 0.9 }}>
+      ViewAllProfiles ProfileCard=&#123;ProfileCard&#125;
+    </code>
+  </div>
+);
+
 // eslint-disable-next-line no-unused-vars
 export default function ViewAllProfiles({ ProfileCard }) {
+  if (!ProfileCard) {
+    return WALKTHROUGH_MESSAGE;
+  }
   // eslint-disable-next-line no-unused-vars
   const [self, setSelf] = useState(null);
   const [profiles, setProfiles] = useState([]);
@@ -128,26 +151,13 @@ export default function ViewAllProfiles({ ProfileCard }) {
 
       {!loading && !error && profiles.length > 0 && (
         <div className="explore-grid">
-          {profiles.map((profile) =>
-            ProfileCard ? (
-              <ProfileCard
-                key={profile.id}
-                imageUrls={imageUrls}
-                profile={profile}
-              />
-            ) : (
-              <div
-                style={{
-                  width: "80%",
-                  color: "#e0e0e0",
-                  textWrap: "wrap",
-                  wordBreak: "break-word",
-                }}
-              >
-                {JSON.stringify(profile)}
-              </div>
-            )
-          )}
+          {profiles.map((profile) => (
+            <ProfileCard
+              key={profile.id}
+              imageUrls={imageUrls}
+              profile={profile}
+            />
+          ))}
         </div>
       )}
     </>

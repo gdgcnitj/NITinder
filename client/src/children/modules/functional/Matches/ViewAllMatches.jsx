@@ -1,18 +1,31 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
-import NewMatchesCard from "./NewMatchesCard";
-import MessageListItem from "./MessageListItem";
-import ChatHeader from "./ChatHeader";
-import MessageBubble from "./MessageBubble";
-import MessageInput from "./MessageInput";
+
+const WALKTHROUGH_MESSAGE = (
+  <div className="walkthrough-message" style={{
+    padding: "2rem",
+    textAlign: "center",
+    color: "#e0e0e0",
+    background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+    borderRadius: "12px",
+    margin: "1rem",
+    border: "1px solid #333",
+  }}>
+    <h3 style={{ marginBottom: "0.5rem" }}>📚 Walkthrough Step</h3>
+    <p style={{ margin: 0, fontSize: "0.95rem" }}>
+      Import <strong>MatchCard</strong> and <strong>ChatPage</strong> in Chat.jsx, then pass them to ViewAllMatches to see the chat.
+    </p>
+    <code style={{ display: "block", marginTop: "1rem", fontSize: "0.85rem", opacity: 0.9 }}>
+      ViewAllMatches MatchCard=&#123;MatchCard&#125; ChatPage=&#123;ChatPage&#125;
+    </code>
+  </div>
+);
 
 // eslint-disable-next-line no-unused-vars
-export default function ViewAllMatches({MatchCard, NewMatchesCard: NewMatchesCardComponent, MessageListItem: MessageListItemComponent, ChatHeader: ChatHeaderComponent, MessageBubble: MessageBubbleComponent, MessageInput: MessageInputComponent}) {
-  const NewMatchesCardToUse = NewMatchesCardComponent || NewMatchesCard;
-  const MessageListItemToUse = MessageListItemComponent || MessageListItem;
-  const ChatHeaderToUse = ChatHeaderComponent || ChatHeader;
-  const MessageBubbleToUse = MessageBubbleComponent || MessageBubble;
-  const MessageInputToUse = MessageInputComponent || MessageInput;
+export default function ViewAllMatches({ MatchCard, ChatPage: ChatPageComponent }) {
+  if (!MatchCard || !ChatPageComponent) {
+    return WALKTHROUGH_MESSAGE;
+  }
   const [self, setSelf] = useState(null);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -337,140 +350,29 @@ export default function ViewAllMatches({MatchCard, NewMatchesCard: NewMatchesCar
   };
 
   return (
-    <>
-      {!selectedConversation ? (
-        <div className="messages-list-view">
-          {/* New Matches Section */}
-          <div className="new-matches-section">
-            <h2 className="section-title">New matches</h2>
-            <NewMatchesCardToUse likesCount={matches.length} />
-          </div>
-
-          {/* Messages Section */}
-          <div className="messages-section">
-            <h2 className="section-title">Messages</h2>
-            {loading && <p className="loading">Loading messages...</p>}
-            {error && <p className="error">Error: {error}</p>}
-            {!loading && !error && conversations.length === 0 && (
-              <p className="no-messages-text">No messages yet.</p>
-            )}
-            {!loading && !error && conversations.length > 0 && (
-              <div className="messages-list">
-                {conversations.map((conv) => {
-                  const match = matches.find(m => m.id === conv.match_id);
-                  const otherUser = match ? getOtherUser(match) : null;
-                  const userId = otherUser?.id || conv.other_user_id;
-                  
-                  return (
-                    <MessageListItemToUse
-                      key={conv.id}
-                      name={conv.other_user_name || otherUser?.name || "Unknown"}
-                      messagePreview={conv.last_message || "No messages yet"}
-                      avatar={userId ? imageUrls[userId] : null}
-                      isActive={true}
-                      hasLikesYou={true}
-                      onClick={() => fetchConversationMessages(conv.id)}
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="chat-view-new">
-          <ChatHeaderToUse
-            name={selectedConversation.other_user_name || "Chat"}
-            profilePicture={getOtherUserFromConversation()?.id ? imageUrls[getOtherUserFromConversation().id] : null}
-            onBack={handleBackToMatches}
-            onMenuClick={() => fetchDateSuggestions()}
-          />
-
-          {showDateSuggestions && (
-            <div className="date-suggestions-modal">
-              <div className="date-suggestions-header">
-                <h3>Date Ideas for You Two</h3>
-                <button
-                  className="close-btn"
-                  onClick={() => setShowDateSuggestions(false)}
-                >
-                  ✕
-                </button>
-              </div>
-
-              {dateSuggestionsError && (
-                <p className="error-message">{dateSuggestionsError}</p>
-              )}
-
-              {dateSuggestions.length > 0 ? (
-                <div className="suggestions-list">
-                  {dateSuggestions.map((suggestion, index) => (
-                    <div key={index} className="suggestion-card">
-                      <div className="suggestion-title">{suggestion.title}</div>
-                      <div className="suggestion-body">
-                        <p className="suggestion-plan">
-                          <strong>Plan:</strong> {suggestion.plan}
-                        </p>
-                        <p className="suggestion-fit">
-                          <strong>Why it fits:</strong> {suggestion.why_it_fits}
-                        </p>
-                        <div className="suggestion-details">
-                          <span className="detail">
-                            📍 {suggestion.location_hint}
-                          </span>
-                          <span className="detail">
-                            💰 {suggestion.estimated_cost}
-                          </span>
-                          <span className="detail">
-                            🕐 {suggestion.ideal_time}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-suggestions">No suggestions generated yet.</p>
-              )}
-            </div>
-          )}
-
-          <div className="messages-container-new">
-            {getMatchDate() && (
-              <p className="match-notification">
-                You matched with {selectedConversation.other_user_name || "them"} on {getMatchDate()}
-              </p>
-            )}
-            {messages.length === 0 ? (
-              <p className="no-messages-new">No messages yet. Start the conversation!</p>
-            ) : (
-              messages.map((msg) => {
-                const isSent = msg.sender_id === self?.profile?.user_id;
-                const otherUser = getOtherUserFromConversation();
-                const avatarUrl = !isSent && otherUser?.id ? imageUrls[otherUser.id] : null;
-                
-                return (
-                  <MessageBubbleToUse
-                    key={msg.id}
-                    content={msg.content}
-                    isSent={isSent}
-                    senderName={msg.sender_name}
-                    timestamp={msg.created_at}
-                    avatar={avatarUrl}
-                  />
-                );
-              })
-            )}
-          </div>
-
-          <MessageInputToUse
-            value={messageInput}
-            onChange={setMessageInput}
-            onSend={sendMessage}
-            disabled={sendingMessage}
-          />
-        </div>
-      )}
-    </>
+    <ChatPageComponent
+      selectedConversation={selectedConversation}
+      messages={messages}
+      messageInput={messageInput}
+      onMessageInputChange={setMessageInput}
+      onSendMessage={sendMessage}
+      sendingMessage={sendingMessage}
+      loading={loading}
+      error={error}
+      conversations={conversations}
+      matches={matches}
+      imageUrls={imageUrls}
+      showDateSuggestions={showDateSuggestions}
+      dateSuggestions={dateSuggestions}
+      dateSuggestionsError={dateSuggestionsError}
+      onBackToMatches={handleBackToMatches}
+      onFetchDateSuggestions={fetchDateSuggestions}
+      onCloseDateSuggestions={() => setShowDateSuggestions(false)}
+      onOpenConversation={fetchConversationMessages}
+      getOtherUser={getOtherUser}
+      getOtherUserFromConversation={getOtherUserFromConversation}
+      getMatchDate={getMatchDate}
+      self={self}
+    />
   );
 }
