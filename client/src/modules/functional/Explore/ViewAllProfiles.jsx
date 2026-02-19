@@ -127,7 +127,7 @@ export default function ViewAllProfiles({ ProfileCard }) {
       )}
 
       {!loading && !error && profiles.length > 0 && (
-        <div className="matches-container">
+        <div className="explore-grid">
           {profiles.map((profile) =>
             ProfileCard ? (
               <ProfileCard

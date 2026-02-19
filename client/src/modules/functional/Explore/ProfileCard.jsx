@@ -2,63 +2,45 @@ import { useNavigate } from "react-router-dom"
 
 export default function ProfileCard({imageUrls, profile}) {
     const navigate = useNavigate()
+    const goToProfile = (e) => {
+      if (e.target.closest(".explore-card-btn")) return
+      navigate(`/profiles/${profile.id}`)
+    }
     return (
-        <div className="match-card" style={{width: "300px"}}>
-              
-              {imageUrls[profile.id] ? (
-                <img
-                  src={imageUrls[profile.id]}
-                  alt={profile.name}
-                  style={{
-                    width: "100%",
-                    height: "250px",
-                    objectFit: "cover",
-                  }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "250px",
-                    background: "#1a1a1a",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#888",
-                    borderBottom: "1px solid #333",
-                  }}
+        <div className="explore-profile-card" onClick={goToProfile}>
+              <div className="explore-card-image-wrap">
+                {imageUrls[profile.id] ? (
+                  <img
+                    src={imageUrls[profile.id]}
+                    alt={profile.name}
+                    className="explore-card-image"
+                  />
+                ) : (
+                  <div className="explore-card-image-placeholder">
+                    <span>No Image</span>
+                  </div>
+                )}
+                <div className="explore-card-overlay" />
+              </div>
+
+              <div className="explore-card-content">
+                <div className="explore-card-header">
+                  <h3 className="explore-card-name">{profile.name}</h3>
+                  <span className="explore-card-age">{profile.age} yrs</span>
+                </div>
+
+                <p className="explore-card-gender">{profile.gender}</p>
+
+                <p className="explore-card-bio">
+                  {profile.bio || "No bio provided"}
+                </p>
+
+                <button 
+                  className="explore-card-btn" 
+                  onClick={(e) => { e.stopPropagation(); navigate(`/profiles/${profile.id}`) }}
                 >
-                  No Image
-                </div>
-              )}
-
-              <div className="match-profile">
-                <div className="profile-header">
-                  <h3 className="profile-name">{profile.name}</h3>
-                  <p className="profile-age">
-                    {profile.age} years old
-                  </p>
-                </div>
-
-                <div className="profile-details">
-                  <p className="detail-item">
-                    <span className="label">Gender:</span>
-                    <span className="value">{profile.gender}</span>
-                  </p>
-                </div>
-
-                <div className="profile-bio">
-                  <p className="label">Bio</p>
-                  <p className="bio-text">
-                    {profile.bio || "No bio provided"}
-                  </p>
-                </div>
-
-                <div className="profile-actions">
-                  <button className="btn-view" onClick={()=>{navigate(`/profiles/${profile.id}`)}}>
-                    View Profile
-                  </button>
-                </div>
+                  View Profile
+                </button>
               </div>
             </div>
     )
