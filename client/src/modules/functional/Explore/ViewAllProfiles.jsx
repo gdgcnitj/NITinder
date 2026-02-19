@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import "./Chat.css";
 
 // eslint-disable-next-line no-unused-vars
-export default function ViewAllProfiles({ProfileCard}) {
+export default function ViewAllProfiles({ ProfileCard }) {
+  // eslint-disable-next-line no-unused-vars
   const [self, setSelf] = useState(null);
   const [profiles, setProfiles] = useState([]);
   const [imageUrls, setImageUrls] = useState({});
@@ -34,7 +35,7 @@ export default function ViewAllProfiles({ProfileCard}) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!res.ok) throw new Error("Failed to fetch self");
@@ -62,7 +63,7 @@ export default function ViewAllProfiles({ProfileCard}) {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error("Failed to fetch profiles");
@@ -70,7 +71,7 @@ export default function ViewAllProfiles({ProfileCard}) {
       const data = await response.json();
 
       const filtered = (data.profiles || []).filter(
-        (p) => p.user_id !== userId
+        (p) => p.user_id !== userId,
       );
 
       setProfiles(filtered);
@@ -96,7 +97,7 @@ export default function ViewAllProfiles({ProfileCard}) {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
+            },
           );
 
           if (res.ok) {
@@ -127,10 +128,36 @@ export default function ViewAllProfiles({ProfileCard}) {
       )}
 
       {!loading && !error && profiles.length > 0 && (
-        <div style={{display:'flex', flexDirection:"row", flexWrap:"wrap", gap:"50px", justifyContent:"center"}}>
-          {profiles.map((profile) => (
-            <ProfileCard key={profile.id} imageUrls={imageUrls} profile={profile} />
-          ))}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: "50px",
+            justifyContent: "center",
+          }}
+        >
+          {profiles.map((profile) => {
+            profile["profile_image"]=""
+            return ProfileCard ? (
+              <ProfileCard
+                key={profile.id}
+                imageUrls={imageUrls}
+                profile={profile}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "80%",
+                  color: "white",
+                  textWrap: "wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {JSON.stringify(profile)}
+              </div>
+            );
+          })}
         </div>
       )}
     </>

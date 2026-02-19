@@ -208,10 +208,16 @@ export default function SwipeProfiles({ActionButtons}) {
           </div>
         </div>
       </div>
-
-      <ActionButtons handlePass={handlePass} handleBoost={handleBoost} handleLike={handleLike} swipeHistory={swipeHistory}
-        handleSuperlike={handleSuperlike} handleSwipe={handleSwipe} handleUndo={handleUndo}
-      />
+      {
+        ActionButtons ?
+        <ActionButtons handlePass={handlePass} handleBoost={handleBoost} handleLike={handleLike} swipeHistory={swipeHistory}
+          handleSuperlike={handleSuperlike} handleSwipe={handleSwipe} handleUndo={handleUndo}
+        />
+        :
+        <div style={{width: "80%", color:'white'}}>
+          Now you need to integrate Action Buttons
+        </div>
+      }
     </>
   )
 }
