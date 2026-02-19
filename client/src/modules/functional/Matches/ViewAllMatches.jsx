@@ -1,8 +1,18 @@
 import { useEffect, useState } from "react";
 import "./Chat.css";
+import NewMatchesCard from "./NewMatchesCard";
+import MessageListItem from "./MessageListItem";
+import ChatHeader from "./ChatHeader";
+import MessageBubble from "./MessageBubble";
+import MessageInput from "./MessageInput";
 
 // eslint-disable-next-line no-unused-vars
-export default function ViewAllMatches({MatchCard}) {
+export default function ViewAllMatches({MatchCard, NewMatchesCard: NewMatchesCardComponent, MessageListItem: MessageListItemComponent, ChatHeader: ChatHeaderComponent, MessageBubble: MessageBubbleComponent, MessageInput: MessageInputComponent}) {
+  const NewMatchesCardToUse = NewMatchesCardComponent || NewMatchesCard;
+  const MessageListItemToUse = MessageListItemComponent || MessageListItem;
+  const ChatHeaderToUse = ChatHeaderComponent || ChatHeader;
+  const MessageBubbleToUse = MessageBubbleComponent || MessageBubble;
+  const MessageInputToUse = MessageInputComponent || MessageInput;
   const [self, setSelf] = useState(null);
   const [matches, setMatches] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +26,7 @@ export default function ViewAllMatches({MatchCard}) {
   const [dateSuggestions, setDateSuggestions] = useState([]);
   const [loadingDateSuggestions, setLoadingDateSuggestions] = useState(false);
   const [dateSuggestionsError, setDateSuggestionsError] = useState(null);
+  const [imageUrls, setImageUrls] = useState({});
 
   useEffect(() => {
     async function fetchSelf() {
@@ -88,6 +99,13 @@ export default function ViewAllMatches({MatchCard}) {
 
     fetchConversations();
   }, []);
+
+  useEffect(() => {
+    if (matches.length > 0 || conversations.length > 0) {
+      fetchImages();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [matches, conversations]);
 
   const fetchConversationMessages = async (conversationId) => {
     try {
@@ -238,6 +256,56 @@ export default function ViewAllMatches({MatchCard}) {
     setDateSuggestions([]);
   };
 
+  const fetchImages = async () => {
+    const token = localStorage.getItem("token");
+    const newUrls = {};
+    const userIdsToFetch = new Set();
+
+    // Collect user IDs from matches
+    matches.forEach((match) => {
+      const otherUser = getOtherUser(match);
+      if (otherUser && otherUser.id) {
+        userIdsToFetch.add(otherUser.id);
+      }
+    });
+
+    // Collect user IDs from conversations
+    conversations.forEach((conv) => {
+      if (conv.other_user_id) {
+        userIdsToFetch.add(conv.other_user_id);
+      }
+    });
+
+    // Fetch images for each user
+    for (const userId of userIdsToFetch) {
+      if (!imageUrls[userId]) {
+        try {
+          const res = await fetch(
+            `${import.meta.env.VITE_BACKEND_URL}/profiles/${userId}/image`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (res.ok) {
+            const blob = await res.blob();
+            newUrls[userId] = URL.createObjectURL(blob);
+          } else {
+            newUrls[userId] = "";
+          }
+        } catch {
+          newUrls[userId] = "";
+        }
+      }
+    }
+
+    if (Object.keys(newUrls).length > 0) {
+      setImageUrls((prev) => ({ ...prev, ...newUrls }));
+    }
+  };
+
   const getOtherUser = (match) => {
     // Get current user ID directly from localStorage
     if (!self) return null;
@@ -254,46 +322,69 @@ export default function ViewAllMatches({MatchCard}) {
     return null;
   };
 
+  const getOtherUserFromConversation = () => {
+    if (!selectedConversation || !matches.length) return null;
+    const match = matches.find(m => m.id === selectedConversation.match_id);
+    if (!match) return null;
+    return getOtherUser(match);
+  };
+
+  const getMatchDate = () => {
+    if (!selectedConversation || !matches.length) return null;
+    const match = matches.find(m => m.id === selectedConversation.match_id);
+    if (!match || !match.created_at) return null;
+    return new Date(match.created_at).toLocaleDateString();
+  };
+
   return (
     <>
       {!selectedConversation ? (
-        <>
-          {loading && <p className="loading">Loading matches...</p>}
-          {error && <p className="error">Error: {error}</p>}
-          {!loading && !error && matches.length === 0 && (
-            <p className="no-matches">No matches found yet.</p>
-          )}
-
-          {!loading && !error && matches.length > 0 && (
-            <div className="matches-container">
-              {matches.map((match) => {
-                const otherUser = getOtherUser(match);
-
-                if (!otherUser) return null;
-
-                return (
-                    <MatchCard key={match.id} otherUser={otherUser} match={match} 
-                        createOrOpenConversation={createOrOpenConversation}/>
-                );
-              })}
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="chat-view">
-          <div className="chat-header">
-            <button className="btn-back" onClick={handleBackToMatches}>
-              ← Back to Matches
-            </button>
-            <h2>{selectedConversation.other_user_id ? "Chat" : "New Chat"}</h2>
-            <button
-              className="btn-date-suggestions"
-              onClick={fetchDateSuggestions}
-              disabled={loadingDateSuggestions}
-            >
-              {loadingDateSuggestions ? "Loading..." : "💡 Suggest Date Ideas"}
-            </button>
+        <div className="messages-list-view">
+          {/* New Matches Section */}
+          <div className="new-matches-section">
+            <h2 className="section-title">New matches</h2>
+            <NewMatchesCardToUse likesCount={matches.length} />
           </div>
+
+          {/* Messages Section */}
+          <div className="messages-section">
+            <h2 className="section-title">Messages</h2>
+            {loading && <p className="loading">Loading messages...</p>}
+            {error && <p className="error">Error: {error}</p>}
+            {!loading && !error && conversations.length === 0 && (
+              <p className="no-messages-text">No messages yet.</p>
+            )}
+            {!loading && !error && conversations.length > 0 && (
+              <div className="messages-list">
+                {conversations.map((conv) => {
+                  const match = matches.find(m => m.id === conv.match_id);
+                  const otherUser = match ? getOtherUser(match) : null;
+                  const userId = otherUser?.id || conv.other_user_id;
+                  
+                  return (
+                    <MessageListItemToUse
+                      key={conv.id}
+                      name={conv.other_user_name || otherUser?.name || "Unknown"}
+                      messagePreview={conv.last_message || "No messages yet"}
+                      avatar={userId ? imageUrls[userId] : null}
+                      isActive={true}
+                      hasLikesYou={true}
+                      onClick={() => fetchConversationMessages(conv.id)}
+                    />
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="chat-view-new">
+          <ChatHeaderToUse
+            name={selectedConversation.other_user_name || "Chat"}
+            profilePicture={getOtherUserFromConversation()?.id ? imageUrls[getOtherUserFromConversation().id] : null}
+            onBack={handleBackToMatches}
+            onMenuClick={() => fetchDateSuggestions()}
+          />
 
           {showDateSuggestions && (
             <div className="date-suggestions-modal">
@@ -344,49 +435,40 @@ export default function ViewAllMatches({MatchCard}) {
             </div>
           )}
 
-          <div className="messages-container">
+          <div className="messages-container-new">
+            {getMatchDate() && (
+              <p className="match-notification">
+                You matched with {selectedConversation.other_user_name || "them"} on {getMatchDate()}
+              </p>
+            )}
             {messages.length === 0 ? (
-              <p className="no-messages">No messages yet. Start the conversation!</p>
+              <p className="no-messages-new">No messages yet. Start the conversation!</p>
             ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`message ${
-                    msg.sender_id === self?.profile?.user_id ? "sent" : "received"
-                  }`}
-                >
-                  <p className="message-sender">{msg.sender_name}</p>
-                  <p className="message-content">{msg.content}</p>
-                  <p className="message-time">
-                    {new Date(msg.created_at).toLocaleString()}
-                  </p>
-                </div>
-              ))
+              messages.map((msg) => {
+                const isSent = msg.sender_id === self?.profile?.user_id;
+                const otherUser = getOtherUserFromConversation();
+                const avatarUrl = !isSent && otherUser?.id ? imageUrls[otherUser.id] : null;
+                
+                return (
+                  <MessageBubbleToUse
+                    key={msg.id}
+                    content={msg.content}
+                    isSent={isSent}
+                    senderName={msg.sender_name}
+                    timestamp={msg.created_at}
+                    avatar={avatarUrl}
+                  />
+                );
+              })
             )}
           </div>
 
-          <div className="message-input-container">
-            <input
-              type="text"
-              value={messageInput}
-              onChange={(e) => setMessageInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !sendingMessage) {
-                  sendMessage();
-                }
-              }}
-              placeholder="Type your message..."
-              className="message-input"
-              disabled={sendingMessage}
-            />
-            <button
-              onClick={sendMessage}
-              className="btn-send"
-              disabled={sendingMessage || !messageInput.trim()}
-            >
-              {sendingMessage ? "Sending..." : "Send"}
-            </button>
-          </div>
+          <MessageInputToUse
+            value={messageInput}
+            onChange={setMessageInput}
+            onSend={sendMessage}
+            disabled={sendingMessage}
+          />
         </div>
       )}
     </>

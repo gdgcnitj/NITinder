@@ -120,7 +120,6 @@ export default function ViewAllProfiles({ ProfileCard }) {
   return (
     <>
       {loading && <p className="loading">Loading profiles...</p>}
-
       {error && <p className="error">Error: {error}</p>}
 
       {!loading && !error && profiles.length === 0 && (
@@ -128,18 +127,9 @@ export default function ViewAllProfiles({ ProfileCard }) {
       )}
 
       {!loading && !error && profiles.length > 0 && (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            flexWrap: "wrap",
-            gap: "50px",
-            justifyContent: "center",
-          }}
-        >
-          {profiles.map((profile) => {
-            profile["profile_image"]=""
-            return ProfileCard ? (
+        <div className="matches-container">
+          {profiles.map((profile) =>
+            ProfileCard ? (
               <ProfileCard
                 key={profile.id}
                 imageUrls={imageUrls}
@@ -156,8 +146,8 @@ export default function ViewAllProfiles({ ProfileCard }) {
               >
                 {JSON.stringify(profile)}
               </div>
-            );
-          })}
+            )
+          )}
         </div>
       )}
     </>

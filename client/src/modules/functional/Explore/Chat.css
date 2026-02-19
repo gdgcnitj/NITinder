@@ -157,6 +157,184 @@
   background: #333;
   border-color: #555;
 }
+
+/* New Explore Design Language Styles */
+
+.explore-view {
+  width: 100%;
+  padding: 1rem;
+}
+
+/* Likes Header */
+.likes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.likes-count {
+  color: #ffffff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.filter-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #444;
+  background: #252525;
+  color: #b0b0b0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: #333;
+  border-color: #555;
+  color: #ffffff;
+}
+
+/* Filter Chips */
+.filter-chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.filter-chip {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid #444;
+  background: #252525;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.filter-chip:hover {
+  background: #333;
+  border-color: #555;
+}
+
+.filter-chip.active {
+  background: #3B82F6;
+  border-color: #3B82F6;
+  color: #ffffff;
+}
+
+/* Blurred Profile Cards Grid */
+.blurred-profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+  padding: 0 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.blurred-profile-card {
+  aspect-ratio: 3 / 4;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background: #252525;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.blurred-profile-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.blurred-profile-image {
+  width: 100%;
+  height: 75%;
+  object-fit: cover;
+  filter: blur(8px);
+  transform: scale(1.1);
+}
+
+.blurred-profile-placeholder {
+  width: 100%;
+  height: 75%;
+  background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 50%, #F97316 100%);
+  filter: blur(8px);
+  opacity: 0.6;
+}
+
+.blurred-profile-text-placeholder {
+  height: 25%;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: #1a1a1a;
+}
+
+.text-line {
+  height: 8px;
+  background: #333;
+  border-radius: 4px;
+  width: 80%;
+}
+
+.text-line:last-child {
+  width: 60%;
+}
+
+/* Likes Button */
+.likes-button-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  position: relative;
+}
+
+.brand-icon {
+  font-size: 1.5rem;
+  position: absolute;
+  left: calc(50% - 120px);
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.likes-button {
+  background: linear-gradient(90deg, #FFD700 0%, #FF8C00 100%);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 24px;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  min-width: 240px;
+  font-family: inherit;
+}
+
+.likes-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+}
+
+.likes-button:active {
+  transform: translateY(0);
+}
 /* Chat View Styles */
 .chat-view {
   display: flex;
